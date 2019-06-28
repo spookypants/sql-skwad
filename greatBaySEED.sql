@@ -12,6 +12,6 @@ CREATE TABLE items (
 );
 
 INSERT INTO items (name, description, highestBid, lowestBid)
-VALUES ("Coca-Cola", "A can of coke", 4.00, 0.50), ("Potato", "An actual potato", 100.00, 0.75);
+VALUES ("Coca-Cola", 4.00, 0.50), ("Potato", 100.00, 0.75);
 
 SELECT * FROM items;
