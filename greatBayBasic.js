@@ -12,6 +12,6 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "port.env.DB_PASSWORD",
+  password: process.env.DB_PASSWORD,
   database: "greatBaySchema"
 });
