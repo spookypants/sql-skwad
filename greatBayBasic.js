@@ -16,61 +16,60 @@ var connection = mysql.createConnection({
   database: "greatBaySchema"
 });
 
-// connection.connect(function(err) {
-//   if (err) throw err;
-//   console.log("connected as id " + connection.threadId + "\n");
-//   connection.end();
-// })
+connection.connect(function(err) {
+  if (err) throw err;
+  console.log("connected as id " + connection.threadId + "\n");
+})
 
 // POST ITEM UPDATE
-function postItem() {
-    // console.log("Inserting a new product...\n");
-    var query = connection.query(
-      "INSERT INTO items SET ?",
-      {
-        name: // user input name (from inquirer),
-        description: // user input desc (from inquirer),
-        lowestBid: //user input starting bid (from inquirer)
-      },
-      function(err, res) {
-        if (err) throw err;
-        // console.log(res.affectedRows + " product inserted!\n");
-      }
-    );
-    // logs the actual query being run
-    // console.log(query.sql);
-  }
+// function postItem() {
+//     // console.log("Inserting a new product...\n");
+//     var query = connection.query(
+//       "INSERT INTO items SET ?",
+//       {
+//         name: // user input name (from inquirer),
+//         description: // user input desc (from inquirer),
+//         lowestBid: //user input starting bid (from inquirer)
+//       },
+//       function(err, res) {
+//         if (err) throw err;
+//         // console.log(res.affectedRows + " product inserted!\n");
+//       }
+//     );
+//     // logs the actual query being run
+//     // console.log(query.sql);
+//   }
 
 // LOOK AT ITEMS - WHEN USER SELECTS BID ON ITEMS
   // SHOW LIST OF POSSIBLE BID ITEMS
-function showItems() {
-    var query = connection.query(
-        "SELECT name FROM items", function(err, res) {
-            if(err) throw err;
-            console.log(res);
-        }
-    )
-}
+// function showItems() {
+//     var query = connection.query(
+//         "SELECT name FROM items", function(err, res) {
+//             if(err) throw err;
+//             console.log(res);
+//         }
+//     )
+// }
 
-// BID UPDATE
-function updateBid() {
-    // console.log("Updating all Rocky Road quantities...\n");
-    var query = connection.query(
-      "UPDATE items SET ? WHERE ?",
-      [
-        {
-          highestBid: //user bid
-        },
-        {
-          name: //user selected item
-        }
-      ],
-      function(err, res) {
-        if (err) throw err;
-        // console.log(res.affectedRows + " bid successful!\n");
-      }
-    );
-  }
+// // BID UPDATE
+// function updateBid() {
+//     // console.log("Updating all Rocky Road quantities...\n");
+//     var query = connection.query(
+//       "UPDATE items SET ? WHERE ?",
+//       [
+//         {
+//           highestBid: //user bid
+//         },
+//         {
+//           name: //user selected item
+//         }
+//       ],
+//       function(err, res) {
+//         if (err) throw err;
+//         // console.log(res.affectedRows + " bid successful!\n");
+//       }
+//     );
+//   }
 
 function initialPrompt() {
   inquirer.prompt([
@@ -102,7 +101,18 @@ function postBid() {
       name: "bid"
     }
   ]).then(function(response){
+      var highestBid = connection.query("SELECT highestBid FROM items WHERE name=" + response.item);
     //if bid is lower than the highest bid
+    if (response.bid < highestBid){
+        console.log("Make a higher bid");
+    } else if (response.bid > highestBid) {
+        connection.query("UPDATE items SET ? WHERE ?", [
+            {highestBid: response.bid},
+            {name: response.item}
+        ], function(err, res) {
+            if(err) throw err;
+        });
+    }
     //console.log("Make a higher bid");
     //postBid();
     //else if bid is higher
@@ -130,6 +140,15 @@ function postItem() {
   ]).then(function(response) {
     //insert info into name, description, and lowest price
     //highest price is null
+    var query = connection.query(
+        "INSERT INTO items SET ?",
+        {
+          name: response.name,
+          description: response.description,
+          lowestBid: response.price
+        },
+        function(err, res) {
+          if (err) throw err;});
     console.log("Your item " + response.name + " has been added!");
   })
 }
